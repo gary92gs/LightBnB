@@ -94,7 +94,27 @@ const addUser = function(user) {
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function(guest_id, limit = 10) {
-  return getAllProperties(null, 2);
+  return pool
+    .query(`
+      SELECT reservations.id, reservations.guest_id, reservations.start_date, properties.*, AVG(rating) AS average_rating
+      FROM reservations
+      JOIN properties ON properties.id = reservations.property_id
+      JOIN property_reviews ON properties.id = property_reviews.property_id
+      WHERE reservations.guest_id = $1
+      GROUP BY reservations.id, properties.title, properties.id, properties.cost_per_night
+      ORDER BY reservations.start_date
+      LIMIT $2;
+    `,[guest_id,limit])
+    .then((result) => {
+      const userReservations = {};
+      for (let i = 1; i <= result.rows.length; i++){
+        userReservations[i] = result.rows[i-1];
+      }
+      return Promise.resolve(userReservations);
+    })
+    .catch((error) =>{
+      console.log(error.message);
+    });
 };
 
 /// Properties
