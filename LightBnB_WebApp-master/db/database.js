@@ -56,11 +56,10 @@ const getUserWithId = function(id) {
     FROM users
     WHERE id = $1;
     `, [id])
-    .then((result) => { 
-      console.log(result.rows[0]);
+    .then((result) => {
       return Promise.resolve(result.rows[0]);
     })
-    .catch((error) => { 
+    .catch((error) => {
       console.log(error.message);
     });
 
@@ -76,11 +75,11 @@ const addUser = function(user) {
     .query(`
       INSERT INTO users (name,email,password)
       VALUES($1,$2,$3)
-    `, [user.name,user.email,user.password])
-    .then((result) => { 
+    `, [user.name, user.email, user.password])
+    .then((result) => {
       console.log('new user added to database');
     })
-    .catch((error) => { 
+    .catch((error) => {
       console.log(error.message);
     });
   return Promise.resolve(user);
@@ -104,15 +103,15 @@ const getAllReservations = function(guest_id, limit = 10) {
       GROUP BY reservations.id, properties.title, properties.id, properties.cost_per_night
       ORDER BY reservations.start_date
       LIMIT $2;
-    `,[guest_id,limit])
+    `, [guest_id, limit])
     .then((result) => {
       const userReservations = {};
-      for (let i = 1; i <= result.rows.length; i++){
-        userReservations[i] = result.rows[i-1];
+      for (let i = 1; i <= result.rows.length; i++) {
+        userReservations[i] = result.rows[i - 1];
       }
       return Promise.resolve(userReservations);
     })
-    .catch((error) =>{
+    .catch((error) => {
       console.log(error.message);
     });
 };
@@ -126,14 +125,55 @@ const getAllReservations = function(guest_id, limit = 10) {
  * @return {Promise<[{}]>}  A promise to the properties.
  */
 const getAllProperties = function(options, limit = 10) {
-  const limitedProperties = {};
+  const queryCraftArray = [
+    'SELECT properties.*',
+    'FROM properties',
+    '', // 2 JOIN
+    '', // 3 WHERE
+    '', // 4 GROUP BY
+    '', // 5 HAVING
+    'ORDER BY cost_per_night',
+    'LIMIT $1;'
+  ];
+  const escapeArray = [limit];
+
+  let whereClause = [];
+  if (options.city) {
+    escapeArray.push(options.city);
+    whereClause.push(`city = $${escapeArray.length}`);
+  }
+  if (options.owner_id) {
+    escapeArray.push(options.owner_id);
+    whereClause.push(`owner_id = $${escapeArray.length}`);
+  }
+  if (options.minimum_price_per_night) {
+    escapeArray.push(options.minimum_price_per_night);
+    whereClause.push(`cost_per_night >= $${escapeArray.length}`);
+  }
+  if (options.maximum_price_per_night) {
+    escapeArray.push(options.maximum_price_per_night);
+    whereClause.push(`cost_per_night <= $${escapeArray.length}`);
+  }
+  if (whereClause.length) {
+    queryCraftArray[3] = 'WHERE ' + whereClause.join(' AND ');
+  }
+
+  //HAVING
+  if (options.minimum_rating) {
+    queryCraftArray[0] += ', AVG(rating)';
+    queryCraftArray[2] = 'JOIN property_reviews ON property_id = properties.id';
+    queryCraftArray[4] = 'GROUP BY properties.id';
+    escapeArray.push(options.minimum_rating);
+    queryCraftArray[5] = `HAVING AVG(rating) >= $${escapeArray.length}`;
+  }
+
+  //put crafted query together
+  const queryString = queryCraftArray.filter(element => element !== '').join(' ');
+
   //query for properties
+  const limitedProperties = {};
   return pool
-    .query(`
-      SELECT *
-      FROM properties
-      LIMIT $1;
-      `, [limit])
+    .query(queryString, escapeArray)
     .then((result) => {
       for (let i = 1; i <= result.rows.length; i++) {
         limitedProperties[i] = result.rows[i - 1];
