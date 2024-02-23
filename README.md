@@ -1,6 +1,12 @@
 # LightBnB
 A simple multi-page Airbnb clone that uses javascript to query a database being hosted on a postgres server and display the requested information for the user.
 
+## Images
+![Home Page](https://github.com/gary92gs/LightBnB/blob/master/project_images/Home%20Page.png)
+![My Reservations Page](https://github.com/gary92gs/LightBnB/blob/master/project_images/My%20Reservations%20Page.png)
+![My Listings Page](https://github.com/gary92gs/LightBnB/blob/master/project_images/My%20Listings%20Page.png)
+![Create Listing Page](https://github.com/gary92gs/LightBnB/blob/master/project_images/Create%20Listing%20Page.png)
+
 ## Getting Started
 1. Fork and Clone This Repository
 2. Install Dependencies with ```npm install```:
