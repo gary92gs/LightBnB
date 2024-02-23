@@ -1,4 +1,18 @@
 # LightBnB
+A simple multi-page Airbnb clone that uses javascript to query a database being hosted on a postgres server and display the requested information for the user.
+
+## Getting Started
+1. Fork and Clone This Repository
+2. Install Dependencies with ```npm install```:
+  <br/>&ensp; - bcrypt
+  <br/>&ensp; - cookie-session
+  <br/>&ensp; - express
+  <br/>&ensp; - nodemon
+  <br/>&ensp; - node postgres
+3. Launch the postgres server with ```startpostgres```
+4. Launch the web server with ```npm run local```
+5. Connect to 'localhost:3000' in a web browser to start using the web app
+
 
 ## Project Structure
 
@@ -53,3 +67,7 @@
 * `routes` contains the router files which are responsible for any HTTP requests to `/users/something` or `/api/something`. 
 * `styles` contains all of the sass files. 
 * `server.js` is the entry point to the application. This connects the routes to the database.
+
+## Known Bugs
+- Rating is currently displaying 'NaN' on HOMEPAGE and MYLISTINGS page. My Reservations page is displaying rating correctly.
+- Some images do not load properly

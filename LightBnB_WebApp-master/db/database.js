@@ -1,5 +1,3 @@
-const properties = require("./json/properties.json");
-const users = require("./json/users.json");
 const { Pool } = require('pg');
 
 const config = {
@@ -126,17 +124,18 @@ const getAllReservations = function(guest_id, limit = 10) {
  */
 const getAllProperties = function(options, limit = 10) {
   const queryCraftArray = [
-    'SELECT properties.*',
-    'FROM properties',
-    '', // 2 JOIN
-    '', // 3 WHERE
-    '', // 4 GROUP BY
-    '', // 5 HAVING
-    'ORDER BY cost_per_night',
-    'LIMIT $1;'
+    `SELECT properties.*, AVG(rating) 
+    FROM properties 
+    JOIN property_reviews ON property_id = properties.id`,
+    '', // 1 WHERE
+    'GROUP BY properties.id',
+    '', // 3 HAVING
+    `ORDER BY cost_per_night
+    LIMIT $1;`
   ];
   const escapeArray = [limit];
 
+  //WHERE
   let whereClause = [];
   if (options.city) {
     escapeArray.push(options.city);
@@ -155,16 +154,13 @@ const getAllProperties = function(options, limit = 10) {
     whereClause.push(`cost_per_night <= $${escapeArray.length}`);
   }
   if (whereClause.length) {
-    queryCraftArray[3] = 'WHERE ' + whereClause.join(' AND ');
+    queryCraftArray[1] = 'WHERE ' + whereClause.join(' AND ');
   }
 
   //HAVING
   if (options.minimum_rating) {
-    queryCraftArray[0] += ', AVG(rating)';
-    queryCraftArray[2] = 'JOIN property_reviews ON property_id = properties.id';
-    queryCraftArray[4] = 'GROUP BY properties.id';
     escapeArray.push(options.minimum_rating);
-    queryCraftArray[5] = `HAVING AVG(rating) >= $${escapeArray.length}`;
+    queryCraftArray[3] = `HAVING AVG(rating) >= $${escapeArray.length}`;
   }
 
   //put crafted query together
