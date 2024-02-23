@@ -15,9 +15,14 @@ A simple multi-page Airbnb clone that uses javascript to query a database being 
   <br/>&ensp; - express
   <br/>&ensp; - nodemon
   <br/>&ensp; - node postgres
-3. Launch the postgres server with ```startpostgres```
-4. Launch the web server with ```npm run local```
-5. Connect to 'localhost:3000' in a web browser to start using the web app
+3. Launch the postgres server with ```startpostgres``` **Note:** You may need to create a server username/password in the CLI at this time
+4. Connect to postgres server with ```psql``` **NOTE:** You will need to log in to your postgres server to connect to it.
+5. Create 'lightbnb' database with ```CREATE DATABASE lightbnb;```
+6. Connect to lightbnb data base with ```\c lightbnb```
+7. Create Database Relations/Tables with ```\i migrations/01_schema.sql```
+8. For testing, populate the Database Relations/Tables with ```\i seeds/01_seeds.sql``` and ```\i seeds/02_seeds.sql```
+9. Launch the web server with ```npm run local```
+10. Connect to 'localhost:3000' in a web browser to start using the web app
 
 
 ## Project Structure
